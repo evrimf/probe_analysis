@@ -1,0 +1,66 @@
+WORKFLOW FOR MATHIESON 2015 PROBE ANALYSIS (N=230)
+
+wget url “https://reich.hms.harvard.edu/sites/reich.hms.harvard.edu/files/inline-files/MathiesonEtAl_genotypes_April2016.tar.gz” 
+
+List of files: (in packedancestrymap format)
+-full230.geno
+-full230.ind
+-full230.snp
+-full230.pops
+
+probe_list: merge the probe file from Haak and Fu studies
+Haak2015-390K=https://www.nature.com/articles/nature14317#s1
+Fu2015-840K=https://www.nature.com/articles/nature14558#s1
+
+PLINK:
+
+1) copy par files to your own folder
+2) change the paths in the par files 
+
+#packedancestrymap to ancestrymap
+/usr/local/softw/EIG-7.2.0/bin/convertf -p par.PACKEDANCESTRYMAP.ANCESTRYMAP
+
+#ancestrymap to eigenstrat
+/usr/local/softw/EIG-7.2.0/bin/convertf -p par.ANCESTRYMAP.EIGENSTRAT
+
+#eigenstrat to ped 
+/usr/local/softw/EIG-7.2.0/bin/convertf -p par.EIGENSTRAT.PED
+
+#obtain map file from pedsnp
+awk '{print $1,"\t",$2,"\t",$3,"\t",$4}' data.pedsnp > mathieson.map 
+
+#remove some individuals that are not used as new samples in this study 
+removIndv.py
+
+#convert numbers (0,1,2) to letters (A,T,G,C)
+/usr/local/softw/plink-1.90/plink --file mathieson --recode --alleleACGT --out math_data
+
+#ped to tped (rows=SNPs, columns=individuals)
+/usr/local/softw/plink-1.90/plink --file math_data --recode --transpose --out math
+
+#to count number of captured alleles for each SNP
+capturedSnpsNo.py
+Input: math.tped
+Output: math_captured.bed
+
+#to count GC content of each probe of each SNP
+probeContent.py
+
+#calculate captured percentiles in R 
+#calculate GC percentiles in R
+boxplotMathieson2015.R
+
+#find GC-contents of the probes according to capture percentiles and write them into seperate files 
+percentileCaptured.py
+
+#find capture number according to GC-content percentiles of the probes and write them into seperate files
+percentileGC.py
+
+#find the non-captured snps
+nonCapturedGc.py
+
+#boxplots
+boxplotMathieson2015.R
+
+Results: 
+https://drive.google.com/drive/folders/17so9J_cNVynU1tlro3-i7cvgAYTn5Xw-?usp=sharing
