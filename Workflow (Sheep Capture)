@@ -1,0 +1,42 @@
+WORKFLOW FOR SHEEP CAPTURE PROBE ANALYSIS
+
+Data:
+Capture FASTQs:
+/mnt/NAS/toTransfer/delivery01215/P11079
+Capture BAMs:
+/mnt/NAS/toTransfer/delivery01215/P11079/BAM      
+Capture Called SNPs:
+/mnt/NAS/projects/2016_sheep/captureResults/snps   
+Sample Info:
+/mnt/NAS/toTransfer/delivery01215/P11079/00/Reports/A.Gotherstrom_18_29_sample_info.txt    
+Probe Info:           
+/mnt/NAS/projects/2016_sheep/captureSNP/SNPcapture/probsfasta 
+Analysis folder: 
+/mnt/NAS/projects/2018_human_capture/preanalysis/ProbeContent_Sheep
+
+Probe Analysis:
+-Merge sheep snp capture ped files:
+Ex: plink --file fA --merge-list allfiles.txt --make-bed --out mynewdata
+ 
+/usr/local/softw/plink-1.90/plink --file /mnt/NAS/projects/2016_sheep/captureResults/snps/tpsc001-b1e1l1.merged.Ovis_aries.Oar_v3.1.dna_rm.toplevel.fa.cons.90perc.only --merge-list allfiles.txt --recode --out sheep_all
+
+-Transpose of the ped file 
+/usr/local/softw/plink-1.90/plink --file sheep_all --recode --transpose --out sheep
+
+-Find the number of alleles that captures for each snp
+python3 capturedSnps.py /mnt/NAS/projects/2018_human_capture/preanalysis/ProbeContent_Sheep/sheep.tped
+
+-Find the GC content of the probes 
+python3 probeGCcontentSheep.py /mnt/NAS/projects/2016_sheep/captureSNP/SNPcapture/probsfasta/probs_sorted.fa /mnt/NAS/projects/2018_human_capture/preanalysis/ProbeContent_Sheep/sheep_probe_gc
+
+-Find the snps in the gc-percentiles (between %10 and %90)
+python3 percentileGC.py /mnt/NAS/projects/2018_human_capture/probe_content/sheep/sheep.tped.bed /mnt/NAS/projects/2018_human_capture/probe_content/sheep/sheep_probe_gc.bed /mnt/NAS/projects/2018_human_capture/probe_content/sheep/percentile_gc
+
+-Find the gc contents in capture-percentiles (between %10 and %90)
+python3 percentileCaptured.py /mnt/NAS/projects/2018_human_capture/probe_content/sheep/sheep.tped.bed /mnt/NAS/projects/2018_human_capture/probe_content/sheep/sheep_probe_gc.bed /mnt/NAS/projects/2018_human_capture/probe_content/sheep/percentile_capture
+
+-Draw boxplots
+boxplotSheepCapture.R
+
+-Draw boxplots
+boxplotSheepCapture.R
