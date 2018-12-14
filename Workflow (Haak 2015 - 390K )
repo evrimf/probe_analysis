@@ -1,0 +1,65 @@
+WORKFLOW FOR HAAK 2015 PROBE ANALYSIS (N=69)
+
+wget url “https://reich.hms.harvard.edu/sites/reich.hms.harvard.edu/files/inline-files/Haak2015PublicData.tar.gz” 
+
+List of files: (in packedancestrymap format)
+-data.geno
+-data.ind
+-data.snp
+-data.pops
+
+probe_list: https://www.nature.com/articles/nature14317#s1
+
+PLINK:
+
+1) copy par files to your own folder
+2) change the paths in the par files 
+
+#packedancestrymap to ancestrymap
+/usr/local/softw/EIG-7.2.0/bin/convertf -p par.PACKEDANCESTRYMAP.ANCESTRYMAP
+
+#ancestrymap to eigenstrat
+/usr/local/softw/EIG-7.2.0/bin/convertf -p par.ANCESTRYMAP.EIGENSTRAT
+
+#eigenstrat to ped 
+/usr/local/softw/EIG-7.2.0/bin/convertf -p par.EIGENSTRAT.PED
+
+#obtain map file from pedsnp
+awk '{print $1,"\t",$2,"\t",$3,"\t",$4}' data.pedsnp > data.map 
+
+#convert numbers (0,1,2) to letters (A,T,G,C)
+/usr/local/softw/plink-1.90/plink --file data --recode --alleleACGT --out haak_data
+
+findAncient.py
+
+#ped to tped (rows=SNPs, columns=individuals)
+/usr/local/softw/plink-1.90/plink --file haak_data --recode --transpose --out haak_plink
+
+#to count number of captured alleles for each SNP
+capturedSnpsNo.py
+Input: haak_plink.tped
+Output: haak_plink.bed
+
+#to count GC content of each probe of each SNP
+probeContent.py
+
+#calculate captured percentiles in R 
+#calculate GC percentiles in R
+boxplotHaakAncient.R
+
+#find GC-contents of the probes according to capture percentiles and write them into seperate files 
+percentileCaptured.py
+
+#find capture number according to GC-content percentiles of the probes and write them into seperate files
+percentileGC.py
+
+#find the non-captured snps
+nonCapturedGc.py
+
+#boxplots
+boxplotHaakAncient.R
+
+Results: 
+https://drive.google.com/drive/folders/17so9J_cNVynU1tlro3-i7cvgAYTn5Xw-?usp=sharing
+
+
